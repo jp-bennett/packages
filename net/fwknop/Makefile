@@ -8,16 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fwknop
-PKG_VERSION:=2.6.8
-PKG_RELEASE:=1
+PKG_VERSION:=HEAD
+PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=http://www.cipherdyne.org/fwknop/download
-PKG_MD5SUM:=1259adc5cff5e29006e4c3ce9f9b2711
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/mrash/fwknop.git
+PKG_SOURCE:=$(PKG_NAME).tar.gz
+PKG_SOURCE_VERSION:=0d41b78d18e1bd2e92d7729e2707595cb10d5298
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
+
 PKG_MAINTAINER:=Jonathan Bennett <JBennett@incomsystems.biz>
 PKG_LICENSE:=GPLv2
 PKG_INSTALL:=1
-
+PKG_FIXUP:=autoreconf
 include $(INCLUDE_DIR)/package.mk
 
 define Package/fwknop/Default
@@ -42,7 +46,7 @@ define Package/fwknopd
   CATEGORY:=Network
   SUBMENU:=Firewall
   TITLE+= Daemon
-  DEPENDS:=+iptables +libfko +libpcap +FWKNOP_GPG:gnupg
+  DEPENDS:=+iptables +libfko +libnetfilter-queue +kmod-ipt-nfqueue +FWKNOP_GPG:gnupg
 endef
 
 define Package/fwknopd/description
@@ -93,6 +97,8 @@ endif
 
 CONFIGURE_ARGS += \
 	--with-iptables=/usr/sbin/iptables
+CONFIGURE_ARGS += \
+	--enable-nfq-capture
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
